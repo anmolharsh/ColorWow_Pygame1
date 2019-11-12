@@ -9,8 +9,8 @@ To improve the present project with new ideas .
 
 # Motivation:
 1.As python is the new big word and game development has been fascinating from a long while !
-here you can learn both of them .
-4.An interesting example for learning OOPS.
+Here you learn both of them .
+2.An interesting example for learning OOPS.
 
 # Features :
 You will learn building a pygame, basic concepts of OOPS .
