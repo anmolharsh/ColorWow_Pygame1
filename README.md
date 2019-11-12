@@ -21,7 +21,7 @@ You will learn building a pygame, basic concepts of OOPS .
 Learning pygame and building small pygame bits.
 
 # Phase 2 :
-Improvement in the present pygame project. (and if a fascinating idea persists, working on both of them )
+Improvement in the present pygame project.
 Adding features .
 
 
