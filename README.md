@@ -1,7 +1,7 @@
 # ColorWow_Pygame1
 # PyGame
 
-## Join (fo KWoC'19)
+## Join (for KWoC'19)
 [![Gitter](https://badges.gitter.im/ColorWow_KWoC-19/community.svg)](https://gitter.im/ColorWow_KWoC-19/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # What has to be done :
