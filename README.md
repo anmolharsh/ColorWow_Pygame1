@@ -2,7 +2,7 @@
 # PyGame
 
 ## Join (for KWoC'19)
-[![Gitter](https://badges.gitter.im/ColorWow_KWoC-19/community.svg)](https://gitter.im/ColorWow_KWoC-19/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+https://join.slack.com/t/colorwowkwoc19/shared_invite/enQtODI0MDk1NDI2NTEzLWVmNzIyMDliY2Y0ZjhmZjY1YmJkOGNlNzNlOGI2YTQ1YTlkMDE1Y2Y5MGNmZGY4NjViMTFiYzBiZGVkNmU2ZmY
 
 # What has to be done :
 To improve the present project with new ideas .
