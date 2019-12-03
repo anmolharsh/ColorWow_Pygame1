@@ -28,6 +28,7 @@ You will learn building a pygame, basic concepts of OOPS .
 
 # Phase 1:
 Learning pygame and building small pygame bits.
+tutorial: https://www.youtube.com/watch?v=VO8rTszcW4s&list=PLsk-HSGFjnaH5yghzu7PcOzm9NhsW0Urw
 
 # Phase 2 :
 Improvement in the present pygame project.
