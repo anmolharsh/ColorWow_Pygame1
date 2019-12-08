@@ -238,10 +238,29 @@ def time_limit_exceeded():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     waiting = False
+
+
 def ship_hit():
 	screen.fill(BLACK)
 	draw_text(screen, "Game Over", 48, width/2, height/3)
-	draw_text(screen, "Your character is destroyed", 30, width/2, height/2)
+	draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
+	draw_text(screen, "Press ENTER", 20, width/2, 3*height/4)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					waiting = False
+
+def mob_hit():
+	screen.fill(BLACK)
+	draw_text(screen, "Game Over", 48, width/2, height/3)
+	draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
 	draw_text(screen, "Press ENTER", 20, width/2, 3*height/4)
 	pygame.display.flip()
 	waiting = True
@@ -356,6 +375,7 @@ while running:
     hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
     if hits:
         game_over = True
+        mob_hit()
 
     # check to see if a mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
