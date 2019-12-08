@@ -23,7 +23,7 @@ ORANGE = (255,165,0)
 pygame.init ()
 pygame.mixer.init()
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("new game")
+pygame.display.set_caption("ColorWow")
 clock = pygame.time.Clock()
 
 game_folder = os.path.dirname(__file__)
@@ -32,7 +32,7 @@ snd_dir = path.join(path.dirname(__file__),"snd")
 score_file = path.join(path.dirname(__file__),"highest_score.txt")
 
 
-font_name = pygame.font.match_font('arial')
+font_name = pygame.font.match_font('Berlin Sans FB')
 def draw_text(surf, text , size, x,y):
     font = pygame.font.Font(font_name,size)
     text_surface = font.render(text, True, WHITE)
@@ -206,7 +206,7 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 def show_go_screen():
-    draw_text(screen, "True color",64,width/2,height/4)
+    draw_text(screen, "True color", 64, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
     draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
     high_score(score)
@@ -223,6 +223,7 @@ def show_go_screen():
                     waiting = False
 
 def time_limit_exceeded():
+    screen.fill(BLACK)
     draw_text(screen, "Game Over", 48, width/2, height/3)
     draw_text(screen, "Sorry, You didn't score enough points", 30, width/2, height/2)
     draw_text(screen, "Press ENTER",20, width/2, 3*height/4)
@@ -237,6 +238,22 @@ def time_limit_exceeded():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     waiting = False
+def ship_hit():
+	screen.fill(BLACK)
+	draw_text(screen, "Game Over", 48, width/2, height/3)
+	draw_text(screen, "Your character is destroyed", 30, width/2, height/2)
+	draw_text(screen, "Press ENTER", 20, width/2, 3*height/4)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					waiting = False
 
 wrong_images = []
 
@@ -273,7 +290,7 @@ for img in right_list:
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir,"laser3.wav"))
 pygame.mixer.music.load(path.join(snd_dir,'Hypnotic Puzzle.wav'))
 pygame.mixer.music.set_volume(0.4)
-pygame.mixer.music.play(-1)#loops=-1)#loops=-1)
+pygame.mixer.music.play(-1)#loops=(-1)
 
 
 # Game loop
@@ -341,9 +358,10 @@ while running:
         game_over = True
 
     # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
     if hits:
         game_over = True
+        ship_hit()
 
     if time.rect.right > width:
         game_over = True
@@ -357,5 +375,6 @@ while running:
 
     # *after* drawing everything, flip the display
     pygame.display.flip()
+    screen.fill(BLACK)
 
 pygame.quit()

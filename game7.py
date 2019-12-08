@@ -43,9 +43,9 @@ class Player(pygame.sprite.Sprite):
     	pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
     	#self.image.fill(GREEN)
-        self.image = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()    	
+        self.image = pygame.image.load(os.path.join(img_folder,"player1.jpg")).convert()    	
     	self.rect = self.image.get_rect()
-    	self.rect.centerx = width/2
+		self.rect.centerx = width/2
     	self.rect.bottom = height - 40
     	self.speedx = 0
 
