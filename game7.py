@@ -204,8 +204,9 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((10,10))
         #self.image.fill(WHITE)
-	self.image = pygame.image.load(path.join(img_folder, "bullet8.png")).convert()       
-	self.rect = self.image.get_rect()
+        self.image = pygame.image.load(path.join(img_folder, "bullet8.png")).convert()
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)
         self.rect.bottom = y
         self.rect.centerx = x
         self.speedy = -40
