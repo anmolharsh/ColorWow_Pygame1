@@ -3,7 +3,6 @@
 import pygame
 import random
 from os import path
-import os
 
 height = 480
 width = 600
@@ -22,12 +21,14 @@ ORANGE = (255,165,0)
 pygame.init ()
 pygame.mixer.init()
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("new game")
+#  // Changed Title
+pygame.display.set_caption("True Color!")
 clock = pygame.time.Clock()
 
-game_folder = os.path.dirname(__file__)
-img_folder = os.path.join(game_folder,"img")
-snd_dir = path.join(path.dirname(__file__),"snd")
+# // Cleaned os and unneccasary repitations
+game_folder = path.dirname(__file__)
+img_folder = path.join(game_folder,"img")
+snd_dir = path.join(game_folder,"snd")
 
 
 font_name = pygame.font.match_font('arial')
@@ -43,7 +44,7 @@ class Player(pygame.sprite.Sprite):
     	pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
     	#self.image.fill(GREEN)
-        self.image = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()    	
+        self.image = pygame.image.load(path.join(img_folder, "player1.jpg")).convert()    	
     	self.rect = self.image.get_rect()
     	self.rect.centerx = width/2
     	self.rect.bottom = height - 40
@@ -72,7 +73,7 @@ class Timer(pygame.sprite.Sprite):
     	pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((20,20))
     	#self.image.fill(WHITE)
-	self.image = pygame.image.load(os.path.join(img_folder, "bullet5.png")).convert()     	
+	self.image = pygame.image.load(path.join(img_folder, "bullet5.png")).convert()     	
 	self.rect = self.image.get_rect()
     	self.rect.centerx = 10
     	self.rect.bottom = height - 5
@@ -191,7 +192,7 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((10,10))
         #self.image.fill(WHITE)
-	self.image = pygame.image.load(os.path.join(img_folder, "bullet8.png")).convert()       
+	self.image = pygame.image.load(path.join(img_folder, "bullet8.png")).convert()       
 	self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
