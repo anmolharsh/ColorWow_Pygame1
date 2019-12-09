@@ -45,6 +45,8 @@ class Player(pygame.sprite.Sprite):
     	#self.image.fill(GREEN)
         self.image = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()    	
     	self.rect = self.image.get_rect()
+    	self.radius = int(self.rect.width / 2)
+    	#pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
     	self.rect.centerx = width/2
     	self.rect.bottom = height - 40
     	self.speedx = 0
@@ -113,6 +115,8 @@ class Mob(pygame.sprite.Sprite):
         #self.image.fill(RED)	
         self.image = random.choice(right_images)	
 	self.rect = self.image.get_rect()
+	self.radius = int(self.rect.width * 0.9 / 2)
+	#pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -133,6 +137,7 @@ class Mob1(pygame.sprite.Sprite):
         #self.image.fill(BLUE)
 	self.image = random.choice(wrong_images)        
 	self.rect = self.image.get_rect()
+	self.radius = int(self.rect.width * 0.9 / 2)
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -153,6 +158,7 @@ class Mob2(pygame.sprite.Sprite):
 	self.image = random.choice(wrong_images)        
 	#self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width * 0.9 / 2)
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -173,6 +179,7 @@ class Mob3(pygame.sprite.Sprite):
         #self.image.fill(ORANGE)
 	self.image = random.choice(wrong_images)        
 	self.rect = self.image.get_rect()
+	self.radius = int(self.rect.width * 0.9 / 2)
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -320,7 +327,7 @@ while running:
         game_over = True
 
     # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
     if hits:
         game_over = True        
 
