@@ -56,11 +56,18 @@ def high_score(score):
     draw_text(screen, "Highest score "+str(highscore),20,width/2,height-100)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, choice):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
         #self.image.fill(GREEN)
-        self.image = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()
+        #switch(choice):
+        if(choice == 1):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+        elif(choice == 2):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+        elif(choice == 3):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+        self.image = pygame.transform.scale(self.image, (45, 55))
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 40
@@ -213,7 +220,7 @@ def show_go_screen():
     pygame.display.flip()
     waiting = True
     while waiting:
-        clock.tick(FPS)
+        #clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -274,6 +281,55 @@ def mob_hit():
 				if event.key == pygame.K_RETURN:
 					waiting = False
 
+def ship_selection():
+	screen.fill(BLACK)
+	draw_text(screen, "Select your ship", 40, width/2, height/8)
+	image1 = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+	image1 = pygame.transform.scale(image1, (width/7,height/3))
+	rect1 = image1.get_rect()
+	rect1.centerx = 3*width/14
+	rect1.centery = 3*height/7
+	image2 = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+	image2 = pygame.transform.scale(image2, (width/7,height/3))
+	rect2 = image2.get_rect()
+	rect2.centerx = 7*width/14
+	rect2.centery = 3*height/7
+	image3 = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+	image3 = pygame.transform.scale(image3, (width/7,height/3))
+	rect3 = image1.get_rect()
+	rect3.centerx = 11*width/14
+	rect3.centery = 3*height/7
+	screen.blit(image1, rect1)
+	screen.blit(image2, rect2)
+	screen.blit(image3, rect3)
+	draw_text(screen, "1", 20, 3*width/14, 5*height/8)
+	draw_text(screen, "2", 20, 7*width/14, 5*height/8)
+	draw_text(screen, "3", 20, 11*width/14, 5*height/8)
+	draw_text(screen, "Enter your choice to select aircraft", 30, width/2, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x,mouse_y = pygame.mouse.get_pos()
+ 				if rect1.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=1	
+					return sel;
+				elif rect2.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=2	
+					return sel;
+				elif rect3.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=3
+					return sel;
+
+
 wrong_images = []
 
 wrong_list = [
@@ -320,11 +376,13 @@ while running:
     if game_over:
         show_go_screen()
         game_over = False
+        choice = ship_selection()
+        ship_selection()
         all_sprites = pygame.sprite.Group()
         mobs = pygame.sprite.Group()
         enemy = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
-        player = Player()
+        player = Player(choice)
         all_sprites.add(player)
         time = Timer()
         all_sprites.add(time)
