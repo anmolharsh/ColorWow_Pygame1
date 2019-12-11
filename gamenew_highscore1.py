@@ -302,10 +302,7 @@ def ship_selection():
 	screen.blit(image1, rect1)
 	screen.blit(image2, rect2)
 	screen.blit(image3, rect3)
-	draw_text(screen, "1", 20, 3*width/14, 5*height/8)
-	draw_text(screen, "2", 20, 7*width/14, 5*height/8)
-	draw_text(screen, "3", 20, 11*width/14, 5*height/8)
-	draw_text(screen, "Enter your choice to select aircraft", 30, width/2, 4*height/5)
+	draw_text(screen, "Select your aircraft", 30, width/2, 4*height/5)
 	pygame.display.flip()
 	waiting = True
 	while waiting:
