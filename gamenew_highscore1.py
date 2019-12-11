@@ -5,6 +5,7 @@ import random
 from os import path
 import os
 import sys
+from time import sleep
 
 height = 480
 width = 600
@@ -212,6 +213,8 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+
+
 def show_go_screen():
     draw_text(screen, "True color", 64, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
@@ -231,9 +234,13 @@ def show_go_screen():
 
 def time_limit_exceeded():
     screen.fill(BLACK)
-    draw_text(screen, "Game Over", 48, width/2, height/3)
+    #draw_text(screen, "Game Over", 58, width/2, height/3)
+    image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+    rect = image.get_rect()
+    rect.centerx = width/2
+    screen.blit(image, rect)
     draw_text(screen, "Sorry, You didn't score enough points", 30, width/2, height/2)
-    draw_text(screen, "Press ENTER",20, width/2, 3*height/4)
+    draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -249,9 +256,13 @@ def time_limit_exceeded():
 
 def ship_hit():
 	screen.fill(BLACK)
-	draw_text(screen, "Game Over", 48, width/2, height/3)
+	#draw_text(screen, "Game Over", 58, width/2, height/3)
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
 	draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
-	draw_text(screen, "Press ENTER", 20, width/2, 3*height/4)
+	draw_text(screen, "Press ENTER to play again", 20, width/2, 3*height/4)
 	pygame.display.flip()
 	waiting = True
 	while waiting:
@@ -266,9 +277,13 @@ def ship_hit():
 
 def mob_hit():
 	screen.fill(BLACK)
-	draw_text(screen, "Game Over", 48, width/2, height/3)
+	#draw_text(screen, "Game Over", 58, width/2, height/3)
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
 	draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
-	draw_text(screen, "Press ENTER", 20, width/2, 3*height/4)
+	draw_text(screen, "Press ENTER to play again", 20, width/2, 3*height/4)
 	pygame.display.flip()
 	waiting = True
 	while waiting:
@@ -369,12 +384,17 @@ pygame.mixer.music.play(-1)#loops=(-1)
 game_over = True
 running = True
 score = 0
+
+count = 1  #To make sure that welcome and plane selection window appears only once
+
 while running:
     if game_over:
-        show_go_screen()
+    	if(count>0):
+        	show_go_screen()
+        	choice = ship_selection()
+        	ship_selection()
+        	count=0
         game_over = False
-        choice = ship_selection()
-        ship_selection()
         all_sprites = pygame.sprite.Group()
         mobs = pygame.sprite.Group()
         enemy = pygame.sprite.Group()
@@ -430,12 +450,14 @@ while running:
     hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
     if hits:
         game_over = True
+        sleep(0.5)
         mob_hit()
 
     # check to see if a mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
     if hits:
         game_over = True
+        sleep(0.5)
         ship_hit()
 
     if time.rect.right > width:
