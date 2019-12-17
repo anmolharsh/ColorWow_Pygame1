@@ -300,17 +300,17 @@ def ship_selection():
 	screen.fill(BLACK)
 	draw_text(screen, "Select your ship", 40, width/2, height/8)
 	image1 = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
-	image1 = pygame.transform.scale(image1, (width/7,height/3))
+	image1 = pygame.transform.scale(image1, (int(width/7),int(height/3)))
 	rect1 = image1.get_rect()
 	rect1.centerx = 3*width/14
 	rect1.centery = 3*height/7
 	image2 = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
-	image2 = pygame.transform.scale(image2, (width/7,height/3))
+	image2 = pygame.transform.scale(image2, (int(width/7),int(height/3)))
 	rect2 = image2.get_rect()
 	rect2.centerx = 7*width/14
 	rect2.centery = 3*height/7
 	image3 = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
-	image3 = pygame.transform.scale(image3, (width/7,height/3))
+	image3 = pygame.transform.scale(image3, (int(width/7),int(height/3)))
 	rect3 = image1.get_rect()
 	rect3.centerx = 11*width/14
 	rect3.centery = 3*height/7
@@ -328,7 +328,7 @@ def ship_selection():
 				sys.exit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				mouse_x,mouse_y = pygame.mouse.get_pos()
- 				if rect1.collidepoint(mouse_x, mouse_y):
+				if rect1.collidepoint(mouse_x, mouse_y):
 					waiting = False
 					sel=1	
 					return sel;
@@ -390,46 +390,45 @@ count = 1  #To make sure that welcome and plane selection window appears only on
 while running:
     if game_over:
     	if(count>0):
-        	show_go_screen()
-        	choice = ship_selection()
-        	ship_selection()
-        	count=0
-        game_over = False
-        all_sprites = pygame.sprite.Group()
-        mobs = pygame.sprite.Group()
-        enemy = pygame.sprite.Group()
-        bullets = pygame.sprite.Group()
-        player = Player(choice)
-        all_sprites.add(player)
-        time = Timer()
-        all_sprites.add(time)
-        for i in range(1):
-            m = Mob()
-            n = Mob1()
-            o = Mob2()
-            p = Mob3()
-            all_sprites.add(m)
-            all_sprites.add(n)
-            all_sprites.add(o)
-            all_sprites.add(p)
-            mobs.add(n)
-            mobs.add(o)
-            mobs.add(p)
-            enemy.add(m)
-        score = 0
-
+    		show_go_screen()
+    		choice = ship_selection()
+    		ship_selection()
+    		count=0
+    	game_over = False
+    	all_sprites = pygame.sprite.Group()
+    	mobs = pygame.sprite.Group()
+    	enemy = pygame.sprite.Group()
+    	bullets = pygame.sprite.Group()
+    	player = Player(choice)
+    	all_sprites.add(player)
+    	time = Timer()
+    	all_sprites.add(time)
+    	for i in range(1):
+    		m = Mob()
+    		n = Mob1()
+    		o = Mob2()
+    		p = Mob3()
+    		all_sprites.add(m)
+    		all_sprites.add(n)
+    		all_sprites.add(o)
+    		all_sprites.add(p)
+    		mobs.add(n)
+    		mobs.add(o)
+    		mobs.add(p)
+    		enemy.add(m)
+    	score = 0
     # keep loop running at the right speed
     clock.tick(FPS)
     # Process input (events)
     for event in pygame.event.get():
-        # check for closing window
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.shoot()
+    	# check for closing window
+    	if event.type == pygame.QUIT:
+    		running = False
+    	elif event.type == pygame.KEYDOWN:
+    		if event.key == pygame.K_SPACE:
+    			player.shoot()
 
-    # Update
+   	#update
     all_sprites.update()
 
     # check if bullet hits mob
