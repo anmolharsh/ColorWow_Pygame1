@@ -3,37 +3,42 @@
 import pygame
 import random
 from os import path
-import os
 
-height = 480
-width = 600
+height = 800
+width = 480
 FPS = 60
 
 # define colors
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-RED = (255,0,0)
-BLUE = (0,0,255)
-GREEN = (0,255,0)
-YELLOW = (255,255,0)
-ORANGE = (255,165,0)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)
+PURPLE = (128, 0, 128)
+BROWN = (150, 75, 0)
+
+Colors = [BROWN, BLACK, BLUE, GREEN, YELLOW, ORANGE, PURPLE, WHITE, RED]
 
 # initialize pygame and create window
 pygame.init ()
 pygame.mixer.init()
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("new game")
+#  // Changed Title
+pygame.display.set_caption("True Color!")
 clock = pygame.time.Clock()
 
-game_folder = os.path.dirname(__file__)
-img_folder = os.path.join(game_folder,"img")
-snd_dir = path.join(path.dirname(__file__),"snd")
+# // Cleaned os and unneccasary repitations
+game_folder = path.dirname(__file__)
+img_folder = path.join(game_folder,"img")
+snd_dir = path.join(game_folder,"snd")
 
 
 font_name = pygame.font.match_font('arial')
-def draw_text(surf, text , size, x,y):
-    font = pygame.font.Font(font_name,size)
-    text_surface = font.render(text, True, WHITE)
+def draw_text(surf, text , size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, ORANGE)
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x,y)
     surf.blit(text_surface, text_rect)
@@ -43,8 +48,10 @@ class Player(pygame.sprite.Sprite):
     	pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
     	#self.image.fill(GREEN)
-        self.image = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()    	
-    	self.rect = self.image.get_rect()
+        self.image = pygame.image.load(path.join(img_folder, "player1.jpg")).convert()    	
+        self.image = pygame.transform.scale(self.image, (50, 35))
+    	self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
     	self.rect.centerx = width/2
     	self.rect.bottom = height - 40
     	self.speedx = 0
@@ -61,19 +68,21 @@ class Player(pygame.sprite.Sprite):
     		self.rect.right = width
     	if self.rect.left < 0:
     	    self.rect.left = 0	
+    
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
         bullets.add(bullet)
-	shoot_sound.play()
+        shoot_sound.play()
 
 class Timer(pygame.sprite.Sprite):
     def __init__(self):
     	pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((20,20))
     	#self.image.fill(WHITE)
-	self.image = pygame.image.load(os.path.join(img_folder, "bullet5.png")).convert()     	
-	self.rect = self.image.get_rect()
+        self.image = pygame.image.load(path.join(img_folder, "bullet5.png")).convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
     	self.rect.centerx = 10
     	self.rect.bottom = height - 5
     	self.speedx = 3
@@ -112,7 +121,8 @@ class Mob(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(RED)	
         self.image = random.choice(right_images)	
-	self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)        
+        self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -131,8 +141,9 @@ class Mob1(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((40,40))
         #self.image.fill(BLUE)
-	self.image = random.choice(wrong_images)        
-	self.rect = self.image.get_rect()
+        self.image = random.choice(wrong_images)        
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)        
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -150,8 +161,9 @@ class Mob2(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((40,40))
-	self.image = random.choice(wrong_images)        
-	#self.image.fill(YELLOW)
+        self.image = random.choice(wrong_images)        
+	    #self.image.fill(YELLOW)
+        self.image.set_colorkey(BLACK)        
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -171,8 +183,9 @@ class Mob3(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((40,40))
         #self.image.fill(ORANGE)
-	self.image = random.choice(wrong_images)        
-	self.rect = self.image.get_rect()
+        self.image = random.choice(wrong_images)
+        self.image.set_colorkey(BLACK)        
+        self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
         self.speedy = random.randrange(1,8)
@@ -191,8 +204,9 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((10,10))
         #self.image.fill(WHITE)
-	self.image = pygame.image.load(os.path.join(img_folder, "bullet8.png")).convert()       
-	self.rect = self.image.get_rect()
+        self.image = pygame.image.load(path.join(img_folder, "bullet8.png")).convert()
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)
         self.rect.bottom = y
         self.rect.centerx = x
         self.speedy = -40
@@ -204,6 +218,7 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 def show_go_screen():
+    screen.blit(background, background_rect)
     draw_text(screen, "True color",64,width/2,height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2) 
     draw_text(screen, "Press enter to begin",20,width/2,height*3/4) 
@@ -240,9 +255,11 @@ timer_images = []
 timer_list = ['timer1.png','timer2.png','timer3.png','timer4.png']
                
 
+background = pygame.image.load(path.join(img_folder, "back.png")).convert()
+background_rect = background.get_rect()
 for img in timer_list:
-     	timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
-
+        timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+        
 for img in wrong_list:
      	wrong_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
@@ -326,6 +343,7 @@ while running:
 
     # Draw / render
     screen.fill(BLACK)
+    screen.blit(background, background_rect)
     all_sprites.draw(screen)
     draw_text(screen , str(score), 22, width/2, 10)
 
