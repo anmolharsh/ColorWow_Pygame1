@@ -54,7 +54,27 @@ def high_score(score):
         with open(path.join(dir,"highest_score.txt"),'w') as f:
             f.write(str(highscore))
 
-    draw_text(screen, "Highest score "+str(highscore),20,width/2,height-100)
+    draw_text(screen, "Highest score "+str(highscore),20,width/2,height-75)
+
+class Button():
+	def __init__(self, msg, x, y):
+		self.width = 150
+		self.height = 30
+		self.font = pygame.font.Font(font_name, 24)
+		self.text_color = BLACK
+		self.bg_color = WHITE
+		self.rect = pygame.Rect(0, 0, self.width, self.height)
+		self.prep_msg(msg,x,y)
+		self.rect.centerx, self.rect.centery = x, y
+		#self.rect.centerx, self.rect.centery = width/2, height/2
+		screen.fill(self.bg_color, self.rect)
+		screen.blit(self.msg_image, self.msg_image_rect)
+
+	def prep_msg(self, msg, x, y):
+		self.msg_image = self.font.render(msg, True, self.text_color, self.bg_color)
+		self.msg_image_rect = self.msg_image.get_rect()
+		self.msg_image_rect.centerx, self.msg_image_rect.centery = x, y
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, choice):
@@ -213,12 +233,30 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-
+def instructions():
+	screen.fill(BLACK)
+	draw_text(screen, "INSTRUCTIONS", 48, width/2, height/4)
+	draw_text(screen, "Hit those alphabets, which are initials of name colour of that alphabet", 24, width/2, height/2)
+	draw_text(screen, "Any type of collision leads to end of game.", 24, width/2, 3*height/5)
+	button = Button("START GAME", width/2, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
 
 def show_go_screen():
     draw_text(screen, "True color", 64, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
-    draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
+    button1 = Button('START GAME', width/4, 3*height/4)
+    button2 = Button('INSTRUCTIONS', 3*width/4, 3*height/4)
+    #draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
     high_score(score)
     pygame.display.flip()
     waiting = True
@@ -228,11 +266,17 @@ def show_go_screen():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    waiting = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if button1.rect.collidepoint(mouse_x, mouse_y):
+                	waiting = False
+                elif button2.rect.collidepoint(mouse_x, mouse_y):
+                	waiting = False
+                	instructions()                		
+                	
 
-def time_limit_exceeded():
+
+def time_limit_exceeded(choice):
     screen.fill(BLACK)
     #draw_text(screen, "Game Over", 58, width/2, height/3)
     image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
@@ -240,7 +284,9 @@ def time_limit_exceeded():
     rect.centerx = width/2
     screen.blit(image, rect)
     draw_text(screen, "Sorry, You didn't score enough points", 30, width/2, height/2)
-    draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+    #draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+    button1 = Button("START NEW GAME", width/4, 4*height/5)
+    button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -249,12 +295,19 @@ def time_limit_exceeded():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    waiting = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+            	mouse_x, mouse_y = pygame.mouse.get_pos()
+            	if button1.rect.collidepoint(mouse_x, mouse_y):
+            		waiting = False
+            		return choice
+            	elif button2.rect.collidepoint(mouse_x, mouse_y):
+            		waiting = False
+            		choice = ship_selection()
+            		return choice
 
 
-def ship_hit():
+
+def ship_hit(choice):
 	screen.fill(BLACK)
 	#draw_text(screen, "Game Over", 58, width/2, height/3)
 	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
@@ -262,7 +315,9 @@ def ship_hit():
 	rect.centerx = width/2
 	screen.blit(image, rect)
 	draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
-	draw_text(screen, "Press ENTER to play again", 20, width/2, 3*height/4)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
 	pygame.display.flip()
 	waiting = True
 	while waiting:
@@ -271,11 +326,18 @@ def ship_hit():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_RETURN:
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
 					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
 
-def mob_hit():
+
+def mob_hit(choice):
 	screen.fill(BLACK)
 	#draw_text(screen, "Game Over", 58, width/2, height/3)
 	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
@@ -283,7 +345,9 @@ def mob_hit():
 	rect.centerx = width/2
 	screen.blit(image, rect)
 	draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
-	draw_text(screen, "Press ENTER to play again", 20, width/2, 3*height/4)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
 	pygame.display.flip()
 	waiting = True
 	while waiting:
@@ -292,9 +356,15 @@ def mob_hit():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_RETURN:
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
 					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
 
 def ship_selection():
 	screen.fill(BLACK)
@@ -450,18 +520,19 @@ while running:
     if hits:
         game_over = True
         sleep(0.5)
-        mob_hit()
+        choice = mob_hit(choice)
+
 
     # check to see if a mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
     if hits:
         game_over = True
         sleep(0.5)
-        ship_hit()
+        choice = ship_hit(choice)
 
     if time.rect.right > width:
         game_over = True
-        time_limit_exceeded()
+        choice = time_limit_exceeded(choice)
 
 
     # Draw / render
