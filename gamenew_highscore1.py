@@ -31,7 +31,13 @@ game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder,"img")
 snd_dir = path.join(path.dirname(__file__),"snd")
 score_file = path.join(path.dirname(__file__),"highest_score.txt")
-
+explosion = []
+for i in range(9):
+    filename = 'regularExplosion0{}.png'.format(i)
+    img = pygame.image.load(path.join(img_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_lg = pygame.transform.scale(img, (60, 60))
+    explosion.append(img)
 
 font_name = pygame.font.match_font('Berlin Sans FB')
 def draw_text(surf, text , size, x,y):
@@ -55,6 +61,31 @@ def high_score(score):
             f.write(str(highscore))
 
     draw_text(screen, "Highest score "+str(highscore),20,width/2,height-75)
+
+class Explosion(pygame.sprite.Sprite):
+	def __init__(self, centerx, centery):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = explosion[0]
+		self.rect = self.image.get_rect()
+		self.rect.centerx = centerx
+		self.rect.centery = centery
+		self.frame = 0
+		self.last_update = pygame.time.get_ticks()
+		self.frame_rate = FPS
+
+	def update(self):
+		now = pygame.time.get_ticks()
+		if now - self.last_update > self.frame_rate:
+			self.last_update = now
+			self.frame +=1
+			if self.frame == len(explosion):
+				self.kill()
+			else:
+				centerx = self.rect.centerx
+				centery = self.rect.centery
+				self.image = explosion[self.frame]
+				self.rect = self.image.get_rect()
+				self.rect.centerx, self.rect.centery = centerx, centery
 
 class Button():
 	def __init__(self, msg, x, y):
@@ -155,6 +186,11 @@ class Mob(pygame.sprite.Sprite):
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
     	    self.speedy = random.randrange(1,8)
+    def get_position(self):
+   		position = []
+   		position.append(self.rect.x)
+   		position.append(self.rect.y)
+   		return position
 
 class Mob1(pygame.sprite.Sprite):
     def __init__(self):
@@ -175,6 +211,7 @@ class Mob1(pygame.sprite.Sprite):
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
     	    self.speedy = random.randrange(1,8)
+
 
 class Mob2(pygame.sprite.Sprite):
     def __init__(self):
@@ -469,6 +506,7 @@ while running:
     	mobs = pygame.sprite.Group()
     	enemy = pygame.sprite.Group()
     	bullets = pygame.sprite.Group()
+    	expl = pygame.sprite.Group()
     	player = Player(choice)
     	all_sprites.add(player)
     	time = Timer()
@@ -500,11 +538,13 @@ while running:
 
    	#update
     all_sprites.update()
-
     # check if bullet hits mob
     hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
     for hit in hits:
         score += 1
+        expl = Explosion(hit.rect.centerx, hit.rect.centery)
+        all_sprites.add(expl)
+        #expl.kill()
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
@@ -539,7 +579,6 @@ while running:
     screen.fill(BLACK)
     all_sprites.draw(screen)
     draw_text(screen , str(score), 22, width/2, 10)
-
     # *after* drawing everything, flip the display
     pygame.display.flip()
     screen.fill(BLACK)
