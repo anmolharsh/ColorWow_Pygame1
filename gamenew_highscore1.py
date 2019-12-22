@@ -61,7 +61,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
         #self.image.fill(GREEN)
-        self.image_orig = pygame.image.load(os.path.join(img_folder, "player1.jpg")).convert()
+        self.image_orig = pygame.image.load(os.path.join(img_folder, "player1.png")).convert()
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
