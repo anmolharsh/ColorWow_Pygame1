@@ -63,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         #self.image.fill(GREEN)
         self.image_orig = pygame.image.load(os.path.join(img_folder, "player1.png")).convert()
         self.image = self.image_orig.copy()
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 40
@@ -102,13 +103,15 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         self.rotate()
-        if self.rect.right > width:
-        	self.rect.right = width
-        if self.rect.centerx == width:
-        	self.rect.centerx = 0;
-        if self.rect.left < 0:
-    	    self.rect.left = 0
-    	    
+        if self.rect.left > width:
+        	self.rect.right = 0
+        if self.rect.right < 0:
+    	    self.rect.left = width
+    	if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > height-30:
+            self.rect.bottom = height-30
+            
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top, self.rot)
         all_sprites.add(bullet)
@@ -121,6 +124,7 @@ class Timer(pygame.sprite.Sprite):
         #self.image = pygame.Surface((20,20))
     	#self.image.fill(WHITE)
         self.image = pygame.image.load(os.path.join(img_folder, "bullet5.png")).convert()
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = 10
         self.rect.bottom = height - 5
@@ -136,6 +140,7 @@ class Mob(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(RED)
         self.image = random.choice(right_images)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -156,6 +161,7 @@ class Mob1(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(BLUE)
         self.image = random.choice(wrong_images)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -176,6 +182,7 @@ class Mob2(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         self.image = random.choice(wrong_images)
 	    #self.image.fill(YELLOW)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -196,6 +203,7 @@ class Mob3(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(ORANGE)
         self.image = random.choice(wrong_images)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -330,6 +338,7 @@ while running:
             mobs.add(n)
             mobs.add(o)
             mobs.add(p)
+            mobs.add(m)
             enemy.add(m)
         score = 0
 
