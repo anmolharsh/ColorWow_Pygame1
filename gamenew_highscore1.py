@@ -139,7 +139,7 @@ class Mob(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
-        self.speedy = random.randrange(1,8)
+        self.speedy = random.randrange(4,8)
         #self.speedx = random.randrange(-3,3)
 
     def update(self):
@@ -148,7 +148,7 @@ class Mob(pygame.sprite.Sprite):
         if self.rect.top > height + 10 or self.rect.left < -25 or self.rect.right > width + 20:
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
-    	    self.speedy = random.randrange(1,8)
+    	    self.speedy = random.randrange(4,8)
 
 class Mob1(pygame.sprite.Sprite):
     def __init__(self):
@@ -159,7 +159,7 @@ class Mob1(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
-        self.speedy = random.randrange(1,8)
+        self.speedy = random.randrange(3,7)
         #self.speedx = random.randrange(-3,3)
 
     def update(self):
@@ -168,7 +168,7 @@ class Mob1(pygame.sprite.Sprite):
         if self.rect.top > height + 10 or self.rect.left < -25 or self.rect.right > width + 20:
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
-    	    self.speedy = random.randrange(1,8)
+    	    self.speedy = random.randrange(3,7)
 
 class Mob2(pygame.sprite.Sprite):
     def __init__(self):
@@ -179,7 +179,7 @@ class Mob2(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
-        self.speedy = random.randrange(1,8)
+        self.speedy = random.randrange(3,7)
         #self.speedx = random.randrange(-3,3)
 
     def update(self):
@@ -188,7 +188,7 @@ class Mob2(pygame.sprite.Sprite):
         if self.rect.top > height + 10 or self.rect.left < -25 or self.rect.right > width + 20:
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
-    	    self.speedy = random.randrange(1,8)
+    	    self.speedy = random.randrange(3,7)
 
 class Mob3(pygame.sprite.Sprite):
     def __init__(self):
@@ -199,7 +199,7 @@ class Mob3(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
-        self.speedy = random.randrange(1,8)
+        self.speedy = random.randrange(3,7)
         #self.speedx = random.randrange(-3,3)
 
     def update(self):
@@ -208,7 +208,7 @@ class Mob3(pygame.sprite.Sprite):
         if self.rect.top > height + 10 or self.rect.left < -25 or self.rect.right > width + 20:
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
-    	    self.speedy = random.randrange(1,8)
+    	    self.speedy = random.randrange(3,7)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x,y, rot):
@@ -323,6 +323,17 @@ while running:
             n = Mob1()
             o = Mob2()
             p = Mob3()
+            listob=[m,n,o,p]
+            for i in range(3):
+               x1=listob[i].rect.x
+               y1=listob[i].rect.y
+               sx1=listob[i].speedy
+               for j in range(i+1,4):
+                   x2=listob[j].rect.x
+                   y2=listob[j].rect.y
+                   sx2=listob[j].speedy
+                   if x1==x2 and y1==y2 and sx1==sx2:
+                       sx1+=2
             all_sprites.add(m)
             all_sprites.add(n)
             all_sprites.add(o)
