@@ -96,10 +96,10 @@ class Player(pygame.sprite.Sprite):
             self.speedy = 5
         if keystate[pygame.K_RIGHT] and keystate[pygame.K_LCTRL]:
             self.speedx = 0
-            self.rot_speed = -10
+            self.rot_speed = -20
         if keystate[pygame.K_LEFT] and keystate[pygame.K_LCTRL]:
             self.speedx = 0
-            self.rot_speed = 10
+            self.rot_speed = 20
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         self.rotate()
