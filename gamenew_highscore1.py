@@ -5,6 +5,7 @@ import random
 from os import path
 import os
 import sys
+import math
 from time import sleep
 
 height = 480
@@ -114,12 +115,13 @@ class Player(pygame.sprite.Sprite):
         #self.image.fill(GREEN)
         #switch(choice):
         if(choice == 1):
-        	self.image = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+        	self.image = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
         elif(choice == 2):
-        	self.image = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+        	self.image = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
         elif(choice == 3):
-        	self.image = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+        	self.image = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
         self.image = pygame.transform.scale(self.image, (45, 55))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 40
@@ -406,17 +408,17 @@ def mob_hit(choice):
 def ship_selection():
 	screen.fill(BLACK)
 	draw_text(screen, "Select your ship", 40, width/2, height/8)
-	image1 = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+	image1 = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
 	image1 = pygame.transform.scale(image1, (int(width/7),int(height/3)))
 	rect1 = image1.get_rect()
 	rect1.centerx = 3*width/14
 	rect1.centery = 3*height/7
-	image2 = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+	image2 = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
 	image2 = pygame.transform.scale(image2, (int(width/7),int(height/3)))
 	rect2 = image2.get_rect()
 	rect2.centerx = 7*width/14
 	rect2.centery = 3*height/7
-	image3 = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+	image3 = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
 	image3 = pygame.transform.scale(image3, (int(width/7),int(height/3)))
 	rect3 = image1.get_rect()
 	rect3.centerx = 11*width/14
