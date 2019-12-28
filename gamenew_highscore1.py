@@ -6,7 +6,6 @@ from os import path
 import os
 import sys
 import math
-from time import sleep
 
 height = 480
 width = 600
@@ -561,7 +560,7 @@ while running:
     hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
     if hits:
         game_over = True
-        sleep(0.5)
+        #expl = Explosion(hits.rect.centerx, hits.rect.centery)
         choice = mob_hit(choice)
 
 
@@ -569,7 +568,7 @@ while running:
     hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
     if hits:
         game_over = True
-        sleep(0.5)
+        expl = Explosion(player.rect.centerx, player.rect.centery)
         choice = ship_hit(choice)
 
     if time.rect.right > width:
