@@ -9,6 +9,7 @@ from time import sleep
 import socket
 from gamenew_highscore1 import Button
 
+
 HOST = '127.0.0.1'
 PORT = 23456
 height = 480
@@ -132,6 +133,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.centerx = 0;
         if self.rect.left < 0:
             self.rect.left = 0
+
     def shoot(self, bullets, all_sprites):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
@@ -272,6 +274,7 @@ def show_go_screen(score, conn):
                 if event.key == pygame.K_RETURN:
                     conn.sendall(b'T')
                     waiting = False
+
 
 def oscore_card(score1, score2, conn):
     screen.fill(BLACK)

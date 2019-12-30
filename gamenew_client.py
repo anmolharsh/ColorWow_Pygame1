@@ -9,6 +9,7 @@ from time import sleep
 import socket
 from gamenew_highscore1 import Button
 
+
 HOST = '127.0.0.1'
 PORT = 23456
 height = 480
@@ -150,7 +151,6 @@ class Explosion(pygame.sprite.Sprite):
    				self.image = explosion[self.frame]
    				self.rect = self.image.get_rect()
    				self.rect.centerx, self.rect.centery = centerx, centery
-
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -298,6 +298,7 @@ def oscore_card(score1, score2, clientsocket):
         if(s_status == b'T'):
             waiting = False
 
+
 def yscore_card(score, clientsocket):
     screen.fill(BLACK)
     image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
@@ -415,11 +416,11 @@ for img in wrong_list:
 for img in right_list:
     right_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
-
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir,"laser3.wav"))
 pygame.mixer.music.load(path.join(snd_dir,'Hypnotic Puzzle.wav'))
 pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play(-1)#loops=(-1)
+
 
 
     #Client settings

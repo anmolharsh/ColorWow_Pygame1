@@ -5,7 +5,7 @@ import random
 from os import path
 import os
 import sys
-from time import sleep
+import math
 
 height = 480
 width = 600
@@ -108,7 +108,7 @@ class Button():
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, choice,all_sprites):
+    def __init__(self, choice):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
         #self.image.fill(GREEN)
@@ -147,7 +147,7 @@ class Player(pygame.sprite.Sprite):
         	self.rect.centerx = 0;
         if self.rect.left < 0:
     	    self.rect.left = 0
-    def shoot(self,all_sprites,bullets):
+    def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
         bullets.add(bullet)
@@ -271,14 +271,31 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+def instructions():
+	screen.fill(BLACK)
+	draw_text(screen, "INSTRUCTIONS", 48, width/2, height/4)
+	draw_text(screen, "Hit those alphabets, which are initials of name colour of that alphabet", 24, width/2, height/2)
+	draw_text(screen, "Any type of collision leads to end of game.", 24, width/2, 3*height/5)
+	button = Button("START GAME", width/2, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
 
 def show_go_screen():
-    screen.fill(BLACK)
-    draw_text(screen, "True color", 128, width/2, height/4)
+    draw_text(screen, "True color", 64, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
-    button1 = Button('START GAME', width/2, height*3/4)
-    #button2 = Button('INSTRUCTIONS', width/2, 3*height/4)
+    button1 = Button('START GAME', width/4, 3*height/4)
+    button2 = Button('INSTRUCTIONS', 3*width/4, 3*height/4)
     #draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
+    high_score(score)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -291,15 +308,14 @@ def show_go_screen():
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if button1.rect.collidepoint(mouse_x, mouse_y):
                 	waiting = False
-                # elif button2.rect.collidepoint(mouse_x, mouse_y):
-                # 	waiting = False
-                # 	instructions()
+                elif button2.rect.collidepoint(mouse_x, mouse_y):
+                	waiting = False
+                	instructions()                		
+                	
 
 
-
-def time_limit_exceeded(choice,score):
+def time_limit_exceeded(choice):
     screen.fill(BLACK)
-    high_score(score)
     #draw_text(screen, "Game Over", 58, width/2, height/3)
     image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
     rect = image.get_rect()
@@ -329,66 +345,64 @@ def time_limit_exceeded(choice,score):
 
 
 
-def ship_hit(choice,score):
-    screen.fill(BLACK)
-    high_score(score)
+def ship_hit(choice):
+	screen.fill(BLACK)
 	#draw_text(screen, "Game Over", 58, width/2, height/3)
-    image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
-    rect = image.get_rect()
-    rect.centerx = width/2
-    screen.blit(image, rect)
-    draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
-    #draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
-    button1 = Button("START NEW GAME", width/4, 4*height/5)
-    button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if button1.rect.collidepoint(mouse_x, mouse_y):
-                    waiting = False
-                    return choice
-                elif button2.rect.collidepoint(mouse_x, mouse_y):
-                    waiting = False
-                    choice = ship_selection()
-                    return choice
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
+	draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
 
 
-def mob_hit(choice,score):
-    screen.fill(BLACK)
-    high_score(score)
+def mob_hit(choice):
+	screen.fill(BLACK)
 	#draw_text(screen, "Game Over", 58, width/2, height/3)
-    image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
-    rect = image.get_rect()
-    rect.centerx = width/2
-    screen.blit(image, rect)
-    draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
-    #draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
-    button1 = Button("START NEW GAME", width/4, 4*height/5)
-    button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if button1.rect.collidepoint(mouse_x, mouse_y):
-                    waiting = False
-                    return choice
-                elif button2.rect.collidepoint(mouse_x, mouse_y):
-                    waiting = False
-                    choice = ship_selection()
-                    return choice
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
+	draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
 
 def ship_selection():
 	screen.fill(BLACK)
@@ -439,13 +453,13 @@ def ship_selection():
 wrong_images = []
 
 wrong_list = [
-                    "b1.png",'b2.png','b3.png','b4.png','b5.png','b7.png','b8.png','b9.png','b12.png',
-                'b13.png','g1.png','g2.png','g3.png','g4.png','g5.png','g6.png','g8.png',
-                    'g9.png','o2.png','o3.png','o4.png','o5.png','o6.png','o7.png','o8.png','o9.png','o10.png',
-                    'p1.png','p2.png','p3.png','p4.png','p5.png','p6.png','p7.png','p9.png','p10.png','p12.png',
-                    'r2.png','r3.png','r4.png','r5.png','r6.png','r7.png','r8.png','r9.png','r10.png','r11.png','r12.png',
-            'y1.png','y2.png','y4.png','y5.png','y6.png','y7.png','y8.png','y9.png'
-                 ]
+                "b1.png",'b2.png','b3.png','b4.png','b5.png','b7.png','b8.png','b9.png','b12.png',
+	        'b13.png','g1.png','g2.png','g3.png','g4.png','g5.png','g6.png','g8.png',
+                'g9.png','o2.png','o3.png','o4.png','o5.png','o6.png','o7.png','o8.png','o9.png','o10.png',
+                'p1.png','p2.png','p3.png','p4.png','p5.png','p6.png','p7.png','p9.png','p10.png','p12.png',
+                'r2.png','r3.png','r4.png','r5.png','r6.png','r7.png','r8.png','r9.png','r10.png','r11.png','r12.png',
+		'y1.png','y2.png','y4.png','y5.png','y6.png','y7.png','y8.png','y9.png'
+             ]
 
 right_images = []
 
@@ -459,13 +473,13 @@ timer_list = ['timer1.png','timer2.png','timer3.png','timer4.png']
 
 
 for img in timer_list:
-    timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+     	timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 for img in wrong_list:
-    wrong_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+     	wrong_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 for img in right_list:
-    right_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+     	right_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir,"laser3.wav"))
@@ -474,103 +488,100 @@ pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play(-1)#loops=(-1)
 
 
+# Game loop
+game_over = True
+running = True
+score = 0
 
-def run_game():
-    
-    # Game loop
-    game_over = True
-    running = True
-    score = 0
+count = 1  #To make sure that welcome and plane selection window appears only once
 
-    count = 1  #To make sure that welcome and plane selection window appears only once
+while running:
+    if game_over:
+    	if(count>0):
+    		show_go_screen()
+    		choice = ship_selection()
+    		ship_selection()
+    		count=0
+    	game_over = False
+    	all_sprites = pygame.sprite.Group()
+    	mobs = pygame.sprite.Group()
+    	enemy = pygame.sprite.Group()
+    	bullets = pygame.sprite.Group()
+    	expl = pygame.sprite.Group()
+    	player = Player(choice)
+    	all_sprites.add(player)
+    	time = Timer()
+    	all_sprites.add(time)
+    	for i in range(1):
+    		m = Mob()
+    		n = Mob1()
+    		o = Mob2()
+    		p = Mob3()
+    		all_sprites.add(m)
+    		all_sprites.add(n)
+    		all_sprites.add(o)
+    		all_sprites.add(p)
+    		mobs.add(n)
+    		mobs.add(o)
+    		mobs.add(p)
+    		enemy.add(m)
+    	score = 0
+    # keep loop running at the right speed
+    clock.tick(FPS)
+    # Process input (events)
+    for event in pygame.event.get():
+    	# check for closing window
+    	if event.type == pygame.QUIT:
+    		running = False
+    	elif event.type == pygame.KEYDOWN:
+    		if event.key == pygame.K_SPACE:
+    			player.shoot()
 
-    while running:
-        if game_over:
-        	if(count>0):
-        		show_go_screen()
-        		choice = ship_selection()
-        		ship_selection()
-        		count=0
-        	game_over = False
-        	all_sprites = pygame.sprite.Group()
-        	mobs = pygame.sprite.Group()
-        	enemy = pygame.sprite.Group()
-        	bullets = pygame.sprite.Group()
-        	expl = pygame.sprite.Group()
-        	player = Player(choice,all_sprites)
-        	all_sprites.add(player)
-        	time = Timer()
-        	all_sprites.add(time)
-        	for i in range(1):
-        		m = Mob()
-        		n = Mob1()
-        		o = Mob2()
-        		p = Mob3()
-        		all_sprites.add(m)
-        		all_sprites.add(n)
-        		all_sprites.add(o)
-        		all_sprites.add(p)
-        		mobs.add(n)
-        		mobs.add(o)
-        		mobs.add(p)
-        		enemy.add(m)
-        	score = 0
-        # keep loop running at the right speed
-        clock.tick(FPS)
-        # Process input (events)
-        for event in pygame.event.get():
-        	# check for closing window
-        	if event.type == pygame.QUIT:
-        		running = False
-        	elif event.type == pygame.KEYDOWN:
-        		if event.key == pygame.K_SPACE:
-        			player.shoot(all_sprites,bullets)
+   	#update
+    all_sprites.update()
+    # check if bullet hits mob
+    hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
+    for hit in hits:
+        score += 1
+        expl = Explosion(hit.rect.centerx, hit.rect.centery)
+        all_sprites.add(expl)
+        #expl.kill()
+        m = Mob()
+        all_sprites.add(m)
+        mobs.add(m)
+        enemy.add(m)
+        time.kill()
+        time = Timer()
+        #all_sprites.remove(time)
+        all_sprites.add(time)
+        #time.update.rect.x = 0
 
-       	#update
-        all_sprites.update()
-        # check if bullet hits mob
-        hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
-        for hit in hits:
-            score += 1
-            expl = Explosion(hit.rect.centerx, hit.rect.centery)
-            all_sprites.add(expl)
-            #expl.kill()
-            m = Mob()
-            all_sprites.add(m)
-            mobs.add(m)
-            enemy.add(m)
-            time.kill()
-            time = Timer()
-            #all_sprites.remove(time)
-            all_sprites.add(time)
-            #time.update.rect.x = 0
-
-        # check if bullet hits other than enemy
-        hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
-        if hits:
-            game_over = True
-            sleep(0.5)
-            choice = mob_hit(choice,score)
+    # check if bullet hits other than enemy
+    hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
+    if hits:
+        game_over = True
+        #expl = Explosion(hits.rect.centerx, hits.rect.centery)
+        choice = mob_hit(choice)
 
 
-        # check to see if a mob hit the player
-        hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
-        if hits:
-            game_over = True
-            sleep(0.5)
-            choice = ship_hit(choice,score)
+    # check to see if a mob hit the player
+    hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
+    if hits:
+        game_over = True
+        expl = Explosion(player.rect.centerx, player.rect.centery)
+        choice = ship_hit(choice)
 
-        if time.rect.right > width:
-            game_over = True
-            choice = time_limit_exceeded(choice,score)
+    if time.rect.right > width:
+        game_over = True
+        choice = time_limit_exceeded(choice)
 
 
-        # Draw / render
-        screen.fill(BLACK)
-        all_sprites.draw(screen)
-        draw_text(screen , str(score), 22, width/2, 10)
-        # *after* drawing everything, flip the display
-        pygame.display.flip()
-        screen.fill(BLACK)
+    # Draw / render
+    screen.fill(BLACK)
+    all_sprites.draw(screen)
+    draw_text(screen , str(score), 22, width/2, 10)
+    # *after* drawing everything, flip the display
+    pygame.display.flip()
+    screen.fill(BLACK)
 
-# pygame.quit()
+pygame.quit()
