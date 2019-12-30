@@ -24,16 +24,22 @@ ORANGE = (255,165,0)
 pygame.init ()
 pygame.mixer.init()
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("new game")
+pygame.display.set_caption("ColorWow")
 clock = pygame.time.Clock()
 
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder,"img")
 snd_dir = path.join(path.dirname(__file__),"snd")
 score_file = path.join(path.dirname(__file__),"highest_score.txt")
+explosion = []
+for i in range(9):
+    filename = 'regularExplosion0{}.png'.format(i)
+    img = pygame.image.load(path.join(img_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_lg = pygame.transform.scale(img, (60, 60))
+    explosion.append(img)
 
-
-font_name = pygame.font.match_font('arial')
+font_name = pygame.font.match_font('Berlin Sans FB')
 def draw_text(surf, text , size, x,y):
     font = pygame.font.Font(font_name,size)
     text_surface = font.render(text, True, WHITE)
@@ -54,37 +60,76 @@ def high_score(score):
         with open(path.join(dir,"highest_score.txt"),'w') as f:
             f.write(str(highscore))
 
-    draw_text(screen, "Highest score "+str(highscore),20,width/2,height-100)
+    draw_text(screen, "Highest score "+str(highscore),20,width/2,height-75)
+
+class Explosion(pygame.sprite.Sprite):
+	def __init__(self, centerx, centery):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = explosion[0]
+		self.rect = self.image.get_rect()
+		self.rect.centerx = centerx
+		self.rect.centery = centery
+		self.frame = 0
+		self.last_update = pygame.time.get_ticks()
+		self.frame_rate = FPS
+
+	def update(self):
+		now = pygame.time.get_ticks()
+		if now - self.last_update > self.frame_rate:
+			self.last_update = now
+			self.frame +=1
+			if self.frame == len(explosion):
+				self.kill()
+			else:
+				centerx = self.rect.centerx
+				centery = self.rect.centery
+				self.image = explosion[self.frame]
+				self.rect = self.image.get_rect()
+				self.rect.centerx, self.rect.centery = centerx, centery
+
+class Button():
+	def __init__(self, msg, x, y):
+		self.width = 150
+		self.height = 30
+		self.font = pygame.font.Font(font_name, 24)
+		self.text_color = BLACK
+		self.bg_color = WHITE
+		self.rect = pygame.Rect(0, 0, self.width, self.height)
+		self.prep_msg(msg,x,y)
+		self.rect.centerx, self.rect.centery = x, y
+		#self.rect.centerx, self.rect.centery = width/2, height/2
+		screen.fill(self.bg_color, self.rect)
+		screen.blit(self.msg_image, self.msg_image_rect)
+
+	def prep_msg(self, msg, x, y):
+		self.msg_image = self.font.render(msg, True, self.text_color, self.bg_color)
+		self.msg_image_rect = self.msg_image.get_rect()
+		self.msg_image_rect.centerx, self.msg_image_rect.centery = x, y
+
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, choice):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
         #self.image.fill(GREEN)
-        self.image_orig = pygame.image.load(os.path.join(img_folder, "player1.png")).convert()
-        self.image = self.image_orig.copy()
-        self.image.set_colorkey(BLACK)
+        #switch(choice):
+        if(choice == 1):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
+        elif(choice == 2):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
+        elif(choice == 3):
+        	self.image = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
+        self.image = pygame.transform.scale(self.image, (45, 55))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 40
         self.speedx = 0
         self.speedy = 0
-        self.rot = 0
-    	self.rot_speed = 0
-    	self.last_update = pygame.time.get_ticks()
-
-    def rotate(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_update > 50:
-            self.last_update = now
-            self.rot += self.rot_speed
-            self.image = pygame.transform.rotate(self.image_orig, self.rot)
-
 
     def update(self):
        	self.speedx = 0
         self.speedy = 0
-        self.rot_speed = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_LEFT]:
     	    self.speedx = -5
@@ -94,26 +139,16 @@ class Player(pygame.sprite.Sprite):
             self.speedy = -5
         if keystate[pygame.K_DOWN]:
             self.speedy = 5
-        if keystate[pygame.K_RIGHT] and keystate[pygame.K_LCTRL]:
-            self.speedx = 0
-            self.rot_speed = -20
-        if keystate[pygame.K_LEFT] and keystate[pygame.K_LCTRL]:
-            self.speedx = 0
-            self.rot_speed = 20
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        self.rotate()
-        if self.rect.left > width:
-        	self.rect.right = 0
-        if self.rect.right < 0:
-    	    self.rect.left = width
-    	if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > height-30:
-            self.rect.bottom = height-30
-            
+        if self.rect.right > width:
+        	self.rect.right = width
+        if self.rect.centerx == width:
+        	self.rect.centerx = 0;
+        if self.rect.left < 0:
+    	    self.rect.left = 0
     def shoot(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top, self.rot)
+        bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
         bullets.add(bullet)
     #shoot_sound.play()
@@ -124,7 +159,6 @@ class Timer(pygame.sprite.Sprite):
         #self.image = pygame.Surface((20,20))
     	#self.image.fill(WHITE)
         self.image = pygame.image.load(os.path.join(img_folder, "bullet5.png")).convert()
-        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = 10
         self.rect.bottom = height - 5
@@ -140,7 +174,6 @@ class Mob(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(RED)
         self.image = random.choice(right_images)
-        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -154,6 +187,11 @@ class Mob(pygame.sprite.Sprite):
     	    self.rect.x = random.randrange(0, width - self.rect.width)
     	    self.rect.y = random.randrange(-100, -50)
     	    self.speedy = random.randrange(1,8)
+    def get_position(self):
+   		position = []
+   		position.append(self.rect.x)
+   		position.append(self.rect.y)
+   		return position
 
 class Mob1(pygame.sprite.Sprite):
     def __init__(self):
@@ -161,7 +199,6 @@ class Mob1(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(BLUE)
         self.image = random.choice(wrong_images)
-        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -176,13 +213,13 @@ class Mob1(pygame.sprite.Sprite):
     	    self.rect.y = random.randrange(-100, -50)
     	    self.speedy = random.randrange(1,8)
 
+
 class Mob2(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((40,40))
         self.image = random.choice(wrong_images)
 	    #self.image.fill(YELLOW)
-        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -203,7 +240,6 @@ class Mob3(pygame.sprite.Sprite):
         #self.image = pygame.Surface((40,40))
         #self.image.fill(ORANGE)
         self.image = random.choice(wrong_images)
-        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, width - self.rect.width)
         self.rect.y = random.randrange(-90,-50)
@@ -219,47 +255,76 @@ class Mob3(pygame.sprite.Sprite):
     	    self.speedy = random.randrange(1,8)
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x,y, rot):
+    def __init__(self, x,y):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((10,10))
         #self.image.fill(WHITE)
-        self.image_orig = pygame.image.load(os.path.join(img_folder, "bullet8.png")).convert()
-        self.image = self.image_orig.copy()
+        self.image = pygame.image.load(os.path.join(img_folder, "bullet8.png")).convert()
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -40*math.cos((math.pi)*rot/180)
-        self.speedx = -40*math.sin((math.pi)*rot/180)
-        self.image = pygame.transform.rotate(self.image_orig, rot)
+        self.speedy = -40
 
     def update(self):
         self.rect.y += self.speedy
-        self.rect.x += self.speedx
         # kill if it moves off the top of the screen
         if self.rect.bottom < 0:
             self.kill()
 
+def instructions():
+	screen.fill(BLACK)
+	draw_text(screen, "INSTRUCTIONS", 48, width/2, height/4)
+	draw_text(screen, "Hit those alphabets, which are initials of name colour of that alphabet", 24, width/2, height/2)
+	draw_text(screen, "Any type of collision leads to end of game.", 24, width/2, 3*height/5)
+	button = Button("START GAME", width/2, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+
 def show_go_screen():
-    draw_text(screen, "True color",64,width/2,height/4)
+    draw_text(screen, "True color", 64, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
-    draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
+    button1 = Button('START GAME', width/4, 3*height/4)
+    button2 = Button('INSTRUCTIONS', 3*width/4, 3*height/4)
+    #draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
     high_score(score)
     pygame.display.flip()
     waiting = True
     while waiting:
-        clock.tick(FPS)
+        #clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    waiting = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if button1.rect.collidepoint(mouse_x, mouse_y):
+                	waiting = False
+                elif button2.rect.collidepoint(mouse_x, mouse_y):
+                	waiting = False
+                	instructions()                		
+                	
 
-def time_limit_exceeded():
-    draw_text(screen, "Game Over", 48, width/2, height/3)
+
+def time_limit_exceeded(choice):
+    screen.fill(BLACK)
+    #draw_text(screen, "Game Over", 58, width/2, height/3)
+    image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+    rect = image.get_rect()
+    rect.centerx = width/2
+    screen.blit(image, rect)
     draw_text(screen, "Sorry, You didn't score enough points", 30, width/2, height/2)
-    draw_text(screen, "Press ENTER",20, width/2, 3*height/4)
+    #draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+    button1 = Button("START NEW GAME", width/4, 4*height/5)
+    button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -268,9 +333,122 @@ def time_limit_exceeded():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    waiting = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+            	mouse_x, mouse_y = pygame.mouse.get_pos()
+            	if button1.rect.collidepoint(mouse_x, mouse_y):
+            		waiting = False
+            		return choice
+            	elif button2.rect.collidepoint(mouse_x, mouse_y):
+            		waiting = False
+            		choice = ship_selection()
+            		return choice
+
+
+
+def ship_hit(choice):
+	screen.fill(BLACK)
+	#draw_text(screen, "Game Over", 58, width/2, height/3)
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
+	draw_text(screen, "Your character is destroyed!!!!!", 30, width/2, height/2)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
+
+
+def mob_hit(choice):
+	screen.fill(BLACK)
+	#draw_text(screen, "Game Over", 58, width/2, height/3)
+	image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
+	rect = image.get_rect()
+	rect.centerx = width/2
+	screen.blit(image, rect)
+	draw_text(screen, "Wrong charchter is hit!!!!", 30, width/2, height/2)
+	#draw_text(screen, "Press ENTER to play again",20, width/2, 3*height/4)
+	button1 = Button("START NEW GAME", width/4, 4*height/5)
+	button2 = Button("CHANGE SHIP", width*3/4, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = pygame.mouse.get_pos()
+				if button1.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					return choice
+				elif button2.rect.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					choice = ship_selection()
+					return choice
+
+def ship_selection():
+	screen.fill(BLACK)
+	draw_text(screen, "Select your ship", 40, width/2, height/8)
+	image1 = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
+	image1 = pygame.transform.scale(image1, (int(width/7),int(height/3)))
+	rect1 = image1.get_rect()
+	rect1.centerx = 3*width/14
+	rect1.centery = 3*height/7
+	image2 = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
+	image2 = pygame.transform.scale(image2, (int(width/7),int(height/3)))
+	rect2 = image2.get_rect()
+	rect2.centerx = 7*width/14
+	rect2.centery = 3*height/7
+	image3 = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
+	image3 = pygame.transform.scale(image3, (int(width/7),int(height/3)))
+	rect3 = image1.get_rect()
+	rect3.centerx = 11*width/14
+	rect3.centery = 3*height/7
+	screen.blit(image1, rect1)
+	screen.blit(image2, rect2)
+	screen.blit(image3, rect3)
+	draw_text(screen, "Select your aircraft", 30, width/2, 4*height/5)
+	pygame.display.flip()
+	waiting = True
+	while waiting:
+		clock.tick(FPS)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x,mouse_y = pygame.mouse.get_pos()
+				if rect1.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=1	
+					return sel;
+				elif rect2.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=2	
+					return sel;
+				elif rect3.collidepoint(mouse_x, mouse_y):
+					waiting = False
+					sel=3
+					return sel;
+
 
 wrong_images = []
 
@@ -307,59 +485,67 @@ for img in right_list:
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir,"laser3.wav"))
 pygame.mixer.music.load(path.join(snd_dir,'Hypnotic Puzzle.wav'))
 pygame.mixer.music.set_volume(0.4)
-pygame.mixer.music.play(-1)#loops=-1)#loops=-1)
+pygame.mixer.music.play(-1)#loops=(-1)
 
 
 # Game loop
 game_over = True
 running = True
 score = 0
+
+count = 1  #To make sure that welcome and plane selection window appears only once
+
 while running:
     if game_over:
-        show_go_screen()
-        game_over = False
-        all_sprites = pygame.sprite.Group()
-        mobs = pygame.sprite.Group()
-        enemy = pygame.sprite.Group()
-        bullets = pygame.sprite.Group()
-        player = Player()
-        all_sprites.add(player)
-        time = Timer()
-        all_sprites.add(time)
-        for i in range(1):
-            m = Mob()
-            n = Mob1()
-            o = Mob2()
-            p = Mob3()
-            all_sprites.add(m)
-            all_sprites.add(n)
-            all_sprites.add(o)
-            all_sprites.add(p)
-            mobs.add(n)
-            mobs.add(o)
-            mobs.add(p)
-            mobs.add(m)
-            enemy.add(m)
-        score = 0
-
+    	if(count>0):
+    		show_go_screen()
+    		choice = ship_selection()
+    		ship_selection()
+    		count=0
+    	game_over = False
+    	all_sprites = pygame.sprite.Group()
+    	mobs = pygame.sprite.Group()
+    	enemy = pygame.sprite.Group()
+    	bullets = pygame.sprite.Group()
+    	expl = pygame.sprite.Group()
+    	player = Player(choice)
+    	all_sprites.add(player)
+    	time = Timer()
+    	all_sprites.add(time)
+    	for i in range(1):
+    		m = Mob()
+    		n = Mob1()
+    		o = Mob2()
+    		p = Mob3()
+    		all_sprites.add(m)
+    		all_sprites.add(n)
+    		all_sprites.add(o)
+    		all_sprites.add(p)
+    		mobs.add(n)
+    		mobs.add(o)
+    		mobs.add(p)
+    		enemy.add(m)
+    	score = 0
     # keep loop running at the right speed
     clock.tick(FPS)
     # Process input (events)
     for event in pygame.event.get():
-        # check for closing window
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.shoot()
+    	# check for closing window
+    	if event.type == pygame.QUIT:
+    		running = False
+    	elif event.type == pygame.KEYDOWN:
+    		if event.key == pygame.K_SPACE:
+    			player.shoot()
 
-    # Update
+   	#update
     all_sprites.update()
-
     # check if bullet hits mob
     hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
     for hit in hits:
         score += 1
+        expl = Explosion(hit.rect.centerx, hit.rect.centery)
+        all_sprites.add(expl)
+        #expl.kill()
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
@@ -374,23 +560,28 @@ while running:
     hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
     if hits:
         game_over = True
+        #expl = Explosion(hits.rect.centerx, hits.rect.centery)
+        choice = mob_hit(choice)
+
 
     # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
     if hits:
         game_over = True
+        expl = Explosion(player.rect.centerx, player.rect.centery)
+        choice = ship_hit(choice)
 
     if time.rect.right > width:
         game_over = True
-        time_limit_exceeded()
+        choice = time_limit_exceeded(choice)
 
 
     # Draw / render
     screen.fill(BLACK)
     all_sprites.draw(screen)
     draw_text(screen , str(score), 22, width/2, 10)
-
     # *after* drawing everything, flip the display
     pygame.display.flip()
+    screen.fill(BLACK)
 
 pygame.quit()
