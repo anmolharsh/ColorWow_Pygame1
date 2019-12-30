@@ -7,6 +7,8 @@ import os
 import sys
 from time import sleep
 import socket
+from gamenew_highscore1 import Button
+
 
 HOST = '127.0.0.1'
 PORT = 23456
@@ -34,6 +36,13 @@ game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder,"img")
 snd_dir = path.join(path.dirname(__file__),"snd")
 score_file = path.join(path.dirname(__file__),"highest_score.txt")
+explosion = []
+for i in range(9):
+    filename = 'regularExplosion0{}.png'.format(i)
+    img = pygame.image.load(path.join(img_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_lg = pygame.transform.scale(img, (60, 60))
+    explosion.append(img)
 
 
 font_name = pygame.font.match_font('Berlin Sans FB')
@@ -59,19 +68,45 @@ def high_score(score):
 
     draw_text(screen, "Highest score "+str(highscore),20,width/2,height-100)
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, centerx, centery):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = explosion[0]
+        self.rect = self.image.get_rect()
+        self.rect.centerx = centerx
+        self.rect.centery = centery
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = FPS
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame +=1
+            if self.frame == len(explosion):
+                self.kill()
+            else:
+                centerx = self.rect.centerx
+                centery = self.rect.centery
+                self.image = explosion[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.centerx, self.rect.centery = centerx, centery
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, choice):
+    def __init__(self, choice, all_sprites):
         pygame.sprite.Sprite.__init__(self)
         #self.image = pygame.Surface((50,50))
         #self.image.fill(GREEN)
         #switch(choice):
         if(choice == 1):
-            self.image = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+            self.image = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
         elif(choice == 2):
-            self.image = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+            self.image = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
         elif(choice == 3):
-            self.image = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+            self.image = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
         self.image = pygame.transform.scale(self.image, (45, 55))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 40
@@ -98,7 +133,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.centerx = 0;
         if self.rect.left < 0:
             self.rect.left = 0
-    def shoot(self):
+
+    def shoot(self, bullets, all_sprites):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
         bullets.add(bullet)
@@ -220,9 +256,9 @@ class Bullet(pygame.sprite.Sprite):
 
 
 
-def show_go_screen():
+def show_go_screen(score, conn):
     screen.fill(BLACK)
-    draw_text(screen, "True color", 64, width/2, height/4)
+    draw_text(screen, "True color", 128, width/2, height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
     draw_text(screen, "Press enter to begin",20,width/2,height*3/4)
     high_score(score)
@@ -239,7 +275,8 @@ def show_go_screen():
                     conn.sendall(b'T')
                     waiting = False
 
-def oscore_card(score1, score2):
+
+def oscore_card(score1, score2, conn):
     screen.fill(BLACK)
     if(score1>score2):
         image = pygame.image.load(os.path.join(img_folder, "win-screen.png")).convert()
@@ -272,7 +309,7 @@ def oscore_card(score1, score2):
 
 
 
-def yscore_card(score):
+def yscore_card(score, conn):
     screen.fill(BLACK)
     image = pygame.image.load(os.path.join(img_folder, "Nice-Game-Over.jpg")).convert()
     rect = image.get_rect()
@@ -286,14 +323,14 @@ def yscore_card(score):
     while waiting:
         c_score = conn.recv(1024)
         o_score = int.from_bytes(c_score, "little")
-        oscore_card(score, o_score)
+        oscore_card(score, o_score, conn)
         waiting = False
 
 
 
-def wait_screen():
+def wait_screen(conn):
     screen.fill(BLACK)
-    draw_text(screen, "Wait for opponent to select character", 40, width/2, height/4)
+    draw_text(screen, "Wait for opponent to select character", 60, width/2, height/4)
     image = pygame.image.load(os.path.join(img_folder, "hourglass.jpg")).convert()
     image = pygame.transform.scale(image, (int(width/2), int(height/2)))
     rect = image.get_rect()
@@ -316,21 +353,21 @@ def wait_screen():
             #         waiting = False
 
 
-def ship_selection():
-    wait_screen()
+def ship_selection(conn):
+    wait_screen(conn)
     screen.fill(BLACK)
-    draw_text(screen, "Select your ship", 40, width/2, height/8)
-    image1 = pygame.image.load(os.path.join(img_folder, "player4.jpeg")).convert()
+    draw_text(screen, "Select your ship", 60, width/2, height/8)
+    image1 = pygame.image.load(os.path.join(img_folder, "player4.png")).convert()
     image1 = pygame.transform.scale(image1, (int(width/7),int(height/3)))
     rect1 = image1.get_rect()
     rect1.centerx = 3*width/14
     rect1.centery = 3*height/7
-    image2 = pygame.image.load(os.path.join(img_folder, "player5.jpg")).convert()
+    image2 = pygame.image.load(os.path.join(img_folder, "player5.png")).convert()
     image2 = pygame.transform.scale(image2, (int(width/7),int(height/3)))
     rect2 = image2.get_rect()
     rect2.centerx = 7*width/14
     rect2.centery = 3*height/7
-    image3 = pygame.image.load(os.path.join(img_folder, "player6.jpg")).convert()
+    image3 = pygame.image.load(os.path.join(img_folder, "player6.png")).convert()
     image3 = pygame.transform.scale(image3, (int(width/7),int(height/3)))
     rect3 = image1.get_rect()
     rect3.centerx = 11*width/14
@@ -367,25 +404,15 @@ def ship_selection():
 
 #Server settings and showing initial screen
 
-draw_text(screen, "True color", 64, width/2, height/4)
-draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
-draw_text(screen, "Waiting for other player to connect",20,width/2,height*3/4)
-pygame.display.flip()
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serversocket.bind((HOST,PORT))
-serversocket.listen()
-conn,addr = serversocket.accept()
-
-
 wrong_images = []
 
 wrong_list = [
                 "b1.png",'b2.png','b3.png','b4.png','b5.png','b7.png','b8.png','b9.png','b12.png',
-            'b13.png','g1.png','g2.png','g3.png','g4.png','g5.png','g6.png','g8.png',
+                'b13.png','g1.png','g2.png','g3.png','g4.png','g5.png','g6.png','g8.png',
                 'g9.png','o2.png','o3.png','o4.png','o5.png','o6.png','o7.png','o8.png','o9.png','o10.png',
                 'p1.png','p2.png','p3.png','p4.png','p5.png','p6.png','p7.png','p9.png','p10.png','p12.png',
                 'r2.png','r3.png','r4.png','r5.png','r6.png','r7.png','r8.png','r9.png','r10.png','r11.png','r12.png',
-        'y1.png','y2.png','y4.png','y5.png','y6.png','y7.png','y8.png','y9.png'
+                'y1.png','y2.png','y4.png','y5.png','y6.png','y7.png','y8.png','y9.png'
              ]
 
 right_images = []
@@ -400,14 +427,13 @@ timer_list = ['timer1.png','timer2.png','timer3.png','timer4.png']
 
 
 for img in timer_list:
-        timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+    timer_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 for img in wrong_list:
-        wrong_images.append(pygame.image.load(path.join(img_folder, img)).convert())
+    wrong_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 for img in right_list:
-        right_images.append(pygame.image.load(path.join(img_folder, img)).convert())
-
+    right_images.append(pygame.image.load(path.join(img_folder, img)).convert())
 
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir,"laser3.wav"))
 pygame.mixer.music.load(path.join(snd_dir,'Hypnotic Puzzle.wav'))
@@ -415,105 +441,117 @@ pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play(-1)#loops=(-1)
 
 
-# Game loop
-game_over = True
-running = True
-score = 0
-
-count = 1  #To make sure that welcome and plane selection window appears only once
-
-while running:
-    if game_over:
-        if(count>0):
-            show_go_screen()
-            choice = ship_selection()
-            ship_selection()
-            count=0
-        game_over = False
-        all_sprites = pygame.sprite.Group()
-        mobs = pygame.sprite.Group()
-        enemy = pygame.sprite.Group()
-        bullets = pygame.sprite.Group()
-        player = Player(choice)
-        all_sprites.add(player)
-        time = Timer()
-        all_sprites.add(time)
-        for i in range(1):
-            m = Mob()
-            n = Mob1()
-            o = Mob2()
-            p = Mob3()
-            all_sprites.add(m)
-            all_sprites.add(n)
-            all_sprites.add(o)
-            all_sprites.add(p)
-            mobs.add(n)
-            mobs.add(o)
-            mobs.add(p)
-            enemy.add(m)
-        score = 0
-
-    # keep loop running at the right speed
-    clock.tick(FPS)
-
-    
-    #c_status = conn.recv(1024)
-    #conn.sendall(b'T')
-    #print(c_status)
-
-    # Process input (events)
-    for event in pygame.event.get():
-        # check for closing window
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.shoot()
-
-    # Update
-    all_sprites.update()
-
-    # check if bullet hits mob
-    hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
-    for hit in hits:
-        score += 1
-        m = Mob()
-        all_sprites.add(m)
-        mobs.add(m)
-        enemy.add(m)
-        time.kill()
-        time = Timer()
-        #all_sprites.remove(time)
-        all_sprites.add(time)
-        #time.update.rect.x = 0
-
-    # check if bullet hits other than enemy
-    hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
-    if hits:
-        game_over = True
-        sleep(0.5)
-        yscore_card(score)
-
-    # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
-    if hits:
-        game_over = True
-        sleep(0.5)
-        yscore_card(score)
-
-    if time.rect.right > width:
-        game_over = True
-        yscore_card(score)
-
-
-    # Draw / render
+def run_server():
     screen.fill(BLACK)
-    all_sprites.draw(screen)
-    draw_text(screen , str(score), 22, width/3, 10)
-    #draw_text(screen , "Opponent's score:"+str(c_score), 22, 3*width/4, 10)
-
-    # *after* drawing everything, flip the display
+    draw_text(screen, "True color", 64, width/2, height/4)
+    draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
+    draw_text(screen, "Waiting for other player to connect",20,width/2,height*3/4)
     pygame.display.flip()
-    screen.fill(BLACK)
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind((HOST,PORT))
+    serversocket.listen()
+    conn,addr = serversocket.accept()
 
-pygame.quit()
+    # Game loop
+    game_over = True
+    running = True
+    score = 0
+
+    count = 1  #To make sure that welcome and plane selection window appears only once
+
+    while running:
+        if game_over:
+            if(count>0):
+                show_go_screen(score, conn)
+                choice = ship_selection(conn)
+                ship_selection(conn)
+                count=0
+            game_over = False
+            all_sprites = pygame.sprite.Group()
+            mobs = pygame.sprite.Group()
+            enemy = pygame.sprite.Group()
+            bullets = pygame.sprite.Group()
+            player = Player(choice, all_sprites)
+            all_sprites.add(player)
+            time = Timer()
+            all_sprites.add(time)
+            for i in range(1):
+                m = Mob()
+                n = Mob1()
+                o = Mob2()
+                p = Mob3()
+                all_sprites.add(m)
+                all_sprites.add(n)
+                all_sprites.add(o)
+                all_sprites.add(p)
+                mobs.add(n)
+                mobs.add(o)
+                mobs.add(p)
+                enemy.add(m)
+            score = 0
+
+        # keep loop running at the right speed
+        clock.tick(FPS)
+
+        
+        #c_status = conn.recv(1024)
+        #conn.sendall(b'T')
+        #print(c_status)
+
+        # Process input (events)
+        for event in pygame.event.get():
+            # check for closing window
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    player.shoot(bullets, all_sprites)
+
+        # Update
+        all_sprites.update()
+
+        # check if bullet hits mob
+        hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
+        for hit in hits:
+            score += 1
+            m = Mob()
+            all_sprites.add(m)
+            expl = Explosion(hit.rect.centerx, hit.rect.centery)
+            mobs.add(m)
+            enemy.add(m)
+            time.kill()
+            time = Timer()
+            #all_sprites.remove(time)
+            all_sprites.add(time)
+            #time.update.rect.x = 0
+
+        # check if bullet hits other than enemy
+        hits = pygame.sprite.groupcollide(bullets , mobs ,True ,True)
+        if hits:
+            game_over = True
+            sleep(0.5)
+            yscore_card(score, conn, all_sprites)
+
+        # check to see if a mob hit the player
+        hits = pygame.sprite.spritecollide(player, mobs, False) or pygame.sprite.spritecollide(player, enemy, False)
+        if hits:
+            game_over = True
+            sleep(0.5)
+            yscore_card(score, conn)
+
+        if time.rect.right > width:
+            game_over = True
+            yscore_card(score, conn)
+
+
+        # Draw / render
+        screen.fill(BLACK)
+        all_sprites.draw(screen)
+        draw_text(screen , str(score), 22, width/3, 10)
+        #draw_text(screen , "Opponent's score:"+str(c_score), 22, 3*width/4, 10)
+
+        # *after* drawing everything, flip the display
+        pygame.display.flip()
+        screen.fill(BLACK)
+
+#pygame.quit()
