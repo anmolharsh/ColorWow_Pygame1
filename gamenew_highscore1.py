@@ -54,6 +54,17 @@ def high_score(score):
 
     draw_text(screen, "Highest score "+str(highscore),20,width/2,height-100)
 
+# Loading Explosion Graphics
+explosion_anim=[]
+expl_folder = os.path.join(img_folder, "explosion")
+for i in range(0,10):
+    filename = 'E000{}.png'.format(i)
+    img = pygame.image.load(path.join(expl_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_final = pygame.transform.scale(img, (65,65))
+    explosion_anim.append(img_final)
+    
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -229,6 +240,31 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self,center):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = explosion_anim[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+        self.notdone = True
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.frame += 1
+            if self.frame == len(explosion_anim):
+                self.notdone = False
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = explosion_anim[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+    
+
 def show_go_screen():
     draw_text(screen, "True color",64,width/2,height/4)
     draw_text(screen, "Arrows to move, Space to fire",24,width/2,height/2)
@@ -360,6 +396,8 @@ while running:
     hits = pygame.sprite.groupcollide(bullets , enemy ,True ,True)
     for hit in hits:
         score += 1
+        expl = Explosion(hit.rect.center)
+        all_sprites.add(expl)
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
