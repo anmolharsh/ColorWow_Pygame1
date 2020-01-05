@@ -1,0 +1,8 @@
+This manual is intended to make it easier for user to use multiplayer mode.
+Steps to use multiplayer mode in the game are:-
+1. Checkout mutiplayer branch
+2. Run game_common.py file and choosse multiplayer mode.
+3. Run server on your PC.
+4. Start client on another PC.(Choose Porrt and Hostname appropriately based on mode of connection between computers).
+
+Imp:- Game can only be started by server side computer. 
